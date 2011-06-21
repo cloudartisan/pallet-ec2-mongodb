@@ -33,9 +33,7 @@ h2. Existing SSH Key Pair
 
 h3. Issues
 
-Specifying an existing SSH key pair does not work.  In theory, specifying @key-pair@ inside a @node-spec@ will set the @keyPair@ template option in jClouds.  Unfortunately, it results in a @NullPointerException@.  Hugo Duncan (https://github.com/hugoduncan) has submitted a bug report:
-
-http://code.google.com/p/jclouds/issues/detail?id=602
+Specifying an existing SSH key pair does not work.  In theory, specifying @key-pair@ inside a @node-spec@ will set the @keyPair@ template option in jClouds.  Unfortunately, it results in a @NullPointerException@.  "Hugo Duncan":https://github.com/hugoduncan has submitted a "bug report":http://code.google.com/p/jclouds/issues/detail?id=602
 
 h3. Expectations
 
