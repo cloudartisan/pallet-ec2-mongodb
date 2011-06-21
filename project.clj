@@ -1,5 +1,5 @@
-(defproject staging "0.0.1"
-  :description "Assistly Staging"
+(defproject pallet-ec2-mongodb "0.0.1"
+  :description "pallet-ec2-mongodb"
   :dependencies [[org.clojure/clojure "1.2.1"]
                  [org.clojure/clojure-contrib "1.2.0"]
                  [org.cloudhoist/pallet "0.6.1"]
