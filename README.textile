@@ -41,7 +41,7 @@ h3. Expectations
 
 The common case for users of EC2 (especially teams) would be that they already have SSH key pairs created and stored in EC2.
 
-Ideally, I would expect all the following methods of specifying an existing SSH key pair to be supported (I've included example uses in parentheses):
+Ideally, I would expect all the following methods of specifying an existing SSH key pair to be supported (I've included example use cases in parentheses):
 
 * compute (a common key pair for an entire AWS account)
 * project (a key pair used for a particular project, such as a continuous build project)
@@ -72,17 +72,18 @@ Pallet does not seem to support a concept of containers/collections (which could
 
 Hugo Duncan provided example code for creating/deleting security groups, but I was unable to integrate it to meet my needs:
 
-  (require 'pallet.compute)
+<pre>
+(require 'pallet.compute)
 
-  (def service (pallet.compute/service "your service name from config.clj
-  here")
-  (def security-group-client
-    (..
-      (clojure.contrib.reflect/get-field
-        org.jclouds.ec2.compute.EC2ComputeService "ec2Client" (.compute service)) getSecurityGroupServices))
+(def service (pallet.compute/service "your service name from config.clj here")
+(def security-group-client
+	(..
+		(clojure.contrib.reflect/get-field
+			org.jclouds.ec2.compute.EC2ComputeService "ec2Client" (.compute service)) getSecurityGroupServices))
 
-	(.createSecurityGroupInRegion security-group-client "us-east-1" "sg" "my new sg")
-	(.deleteSecurityGroupInRegion security-group-client "us-east-1" "sg")
+(.createSecurityGroupInRegion security-group-client "us-east-1" "sg" "my new sg")
+(.deleteSecurityGroupInRegion security-group-client "us-east-1" "sg")
+</pre>
 
 h3. Expectations
 
@@ -90,7 +91,7 @@ Security groups automatically created on-demand when required.
 
 Security groups automatically destroyed when they are no longer required.
 
-The ability to specify security groups at the following levels (including examples of why in parentheses):
+The ability to specify security groups at the following levels (including example use cases in parentheses):
 
 * project (a security group for the "staging" or "production" project)
 * node-spec (a security group for all @us-east-1@ nodes or all nodes based on a particular EC2 AMI)
