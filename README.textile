@@ -102,7 +102,11 @@ Security group "inheritance" so that a @group-spec@ that extends many @server-sp
 
 h1. Summary
 
-I started with Pallet and jClouds because they have the potential to perfectly fulfil my long-term needs: provisioning, configuration management, and asset management.
+I started with Pallet and jClouds because they have the potential to perfectly fulfil my long-term needs:
+
+* provisioning
+* configuration management
+* and asset management
 
 Unfortunately, I was not able to make them work in the time available to me.
 
