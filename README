@@ -1,0 +1,111 @@
+h1. Overview
+
+This repository contains my efforts so far to build a mongoDB cluster on EC2 using Pallet and jClouds.
+
+Unfortunately, because of other priorities and time constraints, I did not get very far and have had to put this on the "back burner" and change my approach (to a combination of mr.awsome + Capistrano + Puppet).
+
+I have hit some road blocks and getting past them is beyond my current skillset (I am neither a Java or Clojure developer).  I have created this repository and accompanying notes in the hopes that it will help provide feedback to the Pallet and jClouds communities; also, in the hope that I can revisit this once the road blocks are gone and I have more time to devote to Java/Clojure/jClouds/Pallet.
+
+If you have any advice/contributions/changes, please feel free to fork and create a pull request.
+
+
+h1. Goals
+
+My original goals included:
+
+* A mongoDB cluster with sharding and replica sets
+* All nodes launched as EC2 instances
+* Nodes launched in different availability zones
+* Ability to increase/decrease the cluster size
+* Perform rolling upgrades to the cluster
+* Perform backups of the cluster
+
+
+h1. Issues & Expectations
+
+I didn't get very far with my goals as I encountered issues early on, at the confluence of Pallet, jClouds, and EC2.  The issues were all to do with EC2 features and how I expected to use them.
+
+I imagine these issues could be solved (or at least routed around) by knowing Java/Clojure... alas, I don't.
+
+Other issues (not listed here) were overcome with the fantastic help of Hugo Duncan.
+
+h2. Existing SSH Key Pair
+
+h3. Issues
+
+Specifying an existing SSH key pair does not work.  In theory, specifying @key-pair@ inside a @node-spec@ will set the @keyPair@ template option in jClouds.  Unfortunately, it results in a @NullPointerException@.  Hugo Duncan (https://github.com/hugoduncan) has submitted a bug report:
+
+http://code.google.com/p/jclouds/issues/detail?id=602
+
+h3. Expectations
+
+The common case for users of EC2 (especially teams) would be that they already have SSH key pairs created and stored in EC2.
+
+Ideally, I would expect all the following methods of specifying an existing SSH key pair to be supported (I've included example uses in parentheses):
+
+* compute (a common key pair for an entire AWS account)
+* project (a key pair used for a particular project, such as a continuous build project)
+* node-spec (a key pair for all @us-east-1@ nodes, another key pair for all @us-west-1@ nodes)
+* server-spec (a key pair for all @with-customer-data@ servers)
+* group-spec (a key pair for all @us-east-1@ mongoDB nodes, another for all @us-west-1@ mongoDB nodes)
+* cluster-spec (a key pair for the mongoDB cluster, another key pair for the Hadoop cluster)
+
+h2. Launching In Different Availability Zones
+
+h3. Issues
+
+If I specified a region in the @location-id@ it seemed like the instances were randomly launched in different availabily zones.
+
+If I specified an availability zone in the @location-id@ (eg, @us-east-1a@) it caused an @IllegalArgumentException@.
+
+h3. Expectations
+
+Ideally, I'd like to be able to specify availability zones as well as regions at the @node-spec@ level.  I suspect this is possible and that I'm just using the wrong approach (@location-id@).  Unfortunately, I wasn't able to find a solution in the Pallet documentation or examples.
+
+Ideally, I'd also like to be able to specify a region at the @node-spec@ level (eg, @us-east-1@) and at other levels (perhaps @cluster-spec@) specify that nodes should be spread across availability zones (eg, @us-east-1a@, @us-east-1b@, etc).
+
+h2. Security Groups
+
+h3. Issues
+
+Pallet does not seem to support a concept of containers/collections (which could then be mapped onto security groups for EC2).
+
+Hugo Duncan provided example code for creating/deleting security groups, but I was unable to integrate it to meet my needs:
+
+  (require 'pallet.compute)
+
+  (def service (pallet.compute/service "your service name from config.clj
+  here")
+  (def security-group-client
+    (..
+      (clojure.contrib.reflect/get-field
+        org.jclouds.ec2.compute.EC2ComputeService "ec2Client" (.compute service)) getSecurityGroupServices))
+
+	(.createSecurityGroupInRegion security-group-client "us-east-1" "sg" "my new sg")
+	(.deleteSecurityGroupInRegion security-group-client "us-east-1" "sg")
+
+h3. Expectations
+
+Security groups automatically created on-demand when required.
+
+Security groups automatically destroyed when they are no longer required.
+
+The ability to specify security groups at the following levels (including examples of why in parentheses):
+
+* project (a security group for the "staging" or "production" project)
+* node-spec (a security group for all @us-east-1@ nodes or all nodes based on a particular EC2 AMI)
+* server-spec (a "redis" security group for all @with-redis@ servers and "mongodb" security group for all @with-mongodb@ servers)
+* group-spec (a "standalone" security group for a @group-spec@ that extends @with-app@ and @with-database@)
+* cluster-spec (a security group for an entire nginx cluster so that the same port 80 ingress rule could be applied to all nodes behind a load balancer)
+
+Security group "inheritance" so that a @group-spec@ that extends many @server-spec@ also inherits/extends their security groups.
+
+
+h1. Summary
+
+I started with Pallet and jClouds because they have the potential to perfectly fulfil my long-term needs: provisioning, configuration management, and asset management.
+
+Unfortunately, I was not able to make them work in the time available to me.
+
+So, my goal with this repository is to give back to the Pallet and jClouds projects the only way I can: by making my code and observations available.  And... hopefully... I might help myself at the same time.  :-)
+
